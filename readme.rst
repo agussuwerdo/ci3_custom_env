@@ -1,4 +1,6 @@
-# Codeigniter 3 project with .env file support
+*******************
+Codeigniter 3 project with .env file support
+*******************
 
 Steps :
 
