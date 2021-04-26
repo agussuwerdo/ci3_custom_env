@@ -36,7 +36,6 @@
  * @since	Version 1.0.0
  * @filesource
  */
-
 /*
  * --------------------------------------------------------------------
  * CUSTOM FUNCTION TO LOAD .ENV file
@@ -69,9 +68,21 @@ function psFileKeyVal($wFile, $d = "=")
  * 
 */
 $env = psFileKeyVal(dirname(__FILE__) . DIRECTORY_SEPARATOR . ".env");
-if(!$env) die('.env file not found');
+if (!$env) die('.env file not found');
 foreach ($env as $key => $val) {
 	define('ENV_' . $key, $val);
+}
+
+/*
+ * --------------------------------------------------------------------
+ * GET DEFAULT ROOT FOR Web
+ * --------------------------------------------------------------------
+ * 
+*/
+$root = defined('ENV_APP_URL') ? ENV_APP_URL : '';
+if (PHP_SAPI !== 'cli') {
+	$root  = (isset($_SERVER['HTTPS']) ? "https://" : "http://") . $_SERVER['HTTP_HOST'];
+	$root .= str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
 }
 
 /*
@@ -91,7 +102,11 @@ foreach ($env as $key => $val) {
  *
  * NOTE: If you change these, also change the error_reporting() code below
  */
-define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : ENV_APP_ENV);
+$ENV = 'production';
+if (strpos($root, 'localhost') !== false)
+	$ENV = 'development';
+
+define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : $ENV);
 
 /*
  *---------------------------------------------------------------
@@ -252,6 +267,9 @@ if (!is_dir($system_path)) {
  *  Now that we know the path, set the main path constants
  * -------------------------------------------------------------------
  */
+// application url
+define('BASE_URL', $root);
+
 // The name of THIS file
 define('SELF', pathinfo(__FILE__, PATHINFO_BASENAME));
 
